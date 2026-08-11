@@ -1,0 +1,127 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import jobs from '../../data/careers';
+
+export async function getStaticPaths() {
+  return jobs.map((job) => ({
+    params: { slug: job.slug },
+    props: { job, others: jobs.filter((j) => j.slug !== job.slug) },
+  }));
+}
+
+const { job, others } = Astro.props;
+
+const lists = [
+  { heading: 'What you will do', items: job.responsibilities },
+  { heading: 'What we are looking for', items: job.requirements },
+  { heading: 'Nice to have', items: job.niceToHave },
+];
+---
+
+<Layout title={`${job.title} | Careers at Payflo`} description={job.description}>
+  <main>
+    <!-- Hero -->
+    <section class="pt-28 pb-12 md:pt-32 md:pb-16 bg-gradient-to-b from-purple-50 to-white">
+      <div class="container-custom">
+        <nav aria-label="Breadcrumb" class="mb-6">
+          <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+            <li><a href="/" class="hover:text-payflo-purple">Home</a></li>
+            <li aria-hidden="true">/</li>
+            <li><a href="/careers" class="hover:text-payflo-purple">Careers</a></li>
+            <li aria-hidden="true">/</li>
+            <li class="text-gray-900 font-medium" aria-current="page">{job.title}</li>
+          </ol>
+        </nav>
+
+        <div class="max-w-3xl">
+          <h1 class="text-4xl md:text-5xl font-bold leading-tight">{job.title}</h1>
+          <p class="mt-6 text-xl text-gray-600">{job.description}</p>
+          <div class="mt-6 flex flex-wrap items-center gap-3">
+            <span class="bg-purple-100 text-payflo-purple px-4 py-1.5 rounded-full text-sm font-medium">{job.type}</span>
+            <span class="bg-blue-100 text-payflo-blue px-4 py-1.5 rounded-full text-sm font-medium">{job.location}</span>
+            <span class="bg-gray-100 text-gray-700 px-4 py-1.5 rounded-full text-sm font-medium">{job.team}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Body -->
+    <section class="pb-16 md:pb-24">
+      <div class="container-custom">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <article class="lg:col-span-2 space-y-10">
+            <div>
+              <h2 class="text-2xl md:text-3xl font-bold mb-4">About the role</h2>
+              <p class="text-gray-600 leading-relaxed">{job.about}</p>
+            </div>
+
+            {lists.map((list) => (
+              <div>
+                <h2 class="text-2xl md:text-3xl font-bold mb-4">{list.heading}</h2>
+                <ul class="space-y-3">
+                  {list.items.map((item) => (
+                    <li class="flex items-start gap-3 text-gray-600">
+                      <svg class="w-5 h-5 text-payflo-purple shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            <div>
+              <h2 class="text-2xl md:text-3xl font-bold mb-4">Compensation</h2>
+              <p class="text-gray-600 leading-relaxed">
+                {job.salaryRange}. We publish ranges on every posting and do not negotiate
+                off-band, so the number you see is the number we work from.
+              </p>
+            </div>
+          </article>
+
+          <aside class="lg:col-span-1">
+            <div class="sticky top-28 space-y-8">
+              <div class="feature-card">
+                <h2 class="text-lg font-semibold mb-4">Apply</h2>
+                <dl class="space-y-3 text-sm mb-6">
+                  <div class="flex justify-between gap-4">
+                    <dt class="text-gray-500">Team</dt>
+                    <dd class="text-gray-900 font-medium">{job.team}</dd>
+                  </div>
+                  <div class="flex justify-between gap-4">
+                    <dt class="text-gray-500">Location</dt>
+                    <dd class="text-gray-900 font-medium">{job.location}</dd>
+                  </div>
+                  <div class="flex justify-between gap-4">
+                    <dt class="text-gray-500">Type</dt>
+                    <dd class="text-gray-900 font-medium">{job.type}</dd>
+                  </div>
+                </dl>
+                <a href="/contact" class="btn btn-primary w-full text-center">Apply now</a>
+              </div>
+
+              {others.length > 0 && (
+                <div class="feature-card">
+                  <h2 class="text-lg font-semibold mb-4">Other open roles</h2>
+                  <ul class="space-y-4">
+                    {others.map((other) => (
+                      <li>
+                        <a href={`/careers/${other.slug}`} class="group block">
+                          <span class="block font-medium text-gray-900 group-hover:text-payflo-purple transition-colors duration-200">
+                            {other.title}
+                          </span>
+                          <span class="block text-sm text-gray-600 mt-1">{other.location}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

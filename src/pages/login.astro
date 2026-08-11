@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
+import logoSrc from '../assets/logo.svg';
 ---
 
 <Layout 
@@ -12,7 +14,7 @@ import { Icon } from 'astro-icon/components';
       <!-- Logo -->
       <div class="flex justify-center mb-8">
         <a href="/" class="flex items-center space-x-2">
-          <img src="/src/assets/logo.svg" alt="Payflo" class="h-8 w-auto" />
+          <Image src={logoSrc} alt="Payflo" width={120} height={40} class="h-8 w-auto" />
         </a>
       </div>
       

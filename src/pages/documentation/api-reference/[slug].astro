@@ -1,0 +1,140 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import resources from '../../../data/api-reference';
+
+export async function getStaticPaths() {
+  return resources.map((resource) => ({
+    params: { slug: resource.slug },
+    props: { resource, others: resources.filter((r) => r.slug !== resource.slug) },
+  }));
+}
+
+const { resource, others } = Astro.props;
+
+const methodStyles: Record<string, string> = {
+  GET: 'bg-green-100 text-green-700',
+  POST: 'bg-blue-100 text-blue-700',
+  PATCH: 'bg-amber-100 text-amber-700',
+  DELETE: 'bg-red-100 text-red-700',
+};
+---
+
+<Layout
+  title={`${resource.title} API | Payflo API Reference`}
+  description={resource.description}
+>
+  <main>
+    <!-- Hero -->
+    <section class="pt-28 pb-12 md:pt-32 md:pb-16 bg-gradient-to-b from-purple-50 to-white">
+      <div class="container-custom">
+        <nav aria-label="Breadcrumb" class="mb-6">
+          <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+            <li><a href="/" class="hover:text-payflo-purple">Home</a></li>
+            <li aria-hidden="true">/</li>
+            <li><a href="/documentation" class="hover:text-payflo-purple">Documentation</a></li>
+            <li aria-hidden="true">/</li>
+            <li><a href="/documentation/api-reference" class="hover:text-payflo-purple">API Reference</a></li>
+            <li aria-hidden="true">/</li>
+            <li class="text-gray-900 font-medium" aria-current="page">{resource.title}</li>
+          </ol>
+        </nav>
+
+        <div class="max-w-3xl">
+          <h1 class="text-4xl md:text-5xl font-bold leading-tight">{resource.title}</h1>
+          <p class="mt-6 text-xl text-gray-600">{resource.description}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Body -->
+    <section class="pb-16 md:pb-24">
+      <div class="container-custom">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div class="lg:col-span-2 space-y-14">
+            <p class="text-gray-600 leading-relaxed">{resource.overview}</p>
+
+            {resource.endpoints.map((endpoint) => (
+              <article id={endpoint.id} class="scroll-mt-28">
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                  <span class={`px-3 py-1 rounded-full text-sm font-medium ${methodStyles[endpoint.method]}`}>
+                    {endpoint.method}
+                  </span>
+                  <code class="text-gray-900">{endpoint.path}</code>
+                </div>
+
+                <h2 class="text-2xl md:text-3xl font-bold mb-3">{endpoint.title}</h2>
+                <p class="text-gray-600 leading-relaxed mb-8">{endpoint.description}</p>
+
+                <h3 class="text-lg font-semibold mb-3">Parameters</h3>
+                <div class="overflow-x-auto mb-8">
+                  <table class="w-full text-left text-sm">
+                    <thead>
+                      <tr class="border-b border-gray-200">
+                        <th scope="col" class="py-2 pr-4 font-semibold text-gray-900">Name</th>
+                        <th scope="col" class="py-2 pr-4 font-semibold text-gray-900">Type</th>
+                        <th scope="col" class="py-2 pr-4 font-semibold text-gray-900">Required</th>
+                        <th scope="col" class="py-2 font-semibold text-gray-900">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {endpoint.parameters.map((parameter) => (
+                        <tr class="border-b border-gray-100 align-top">
+                          <td class="py-3 pr-4"><code class="text-payflo-purple">{parameter.name}</code></td>
+                          <td class="py-3 pr-4 text-gray-600">{parameter.type}</td>
+                          <td class="py-3 pr-4 text-gray-600">{parameter.required ? 'Yes' : 'No'}</td>
+                          <td class="py-3 text-gray-600">{parameter.description}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Request</h3>
+                <pre class="bg-gray-900 text-gray-100 rounded-lg p-5 overflow-x-auto text-sm mb-8"><code>{endpoint.example}</code></pre>
+
+                <h3 class="text-lg font-semibold mb-3">Response</h3>
+                <pre class="bg-gray-900 text-gray-100 rounded-lg p-5 overflow-x-auto text-sm"><code>{endpoint.response}</code></pre>
+              </article>
+            ))}
+          </div>
+
+          <aside class="lg:col-span-1">
+            <div class="sticky top-28 space-y-8">
+              <nav class="feature-card" aria-label="Endpoints">
+                <h2 class="text-lg font-semibold mb-4">Endpoints</h2>
+                <ul class="space-y-3">
+                  {resource.endpoints.map((endpoint) => (
+                    <li>
+                      <a href={`#${endpoint.id}`} class="flex items-center gap-2 text-sm text-gray-600 hover:text-payflo-purple">
+                        <span class={`px-2 py-0.5 rounded text-xs font-medium ${methodStyles[endpoint.method]}`}>
+                          {endpoint.method}
+                        </span>
+                        <span>{endpoint.title}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              <div class="feature-card">
+                <h2 class="text-lg font-semibold mb-4">Other resources</h2>
+                <ul class="space-y-4">
+                  {others.map((other) => (
+                    <li>
+                      <a href={`/documentation/api-reference/${other.slug}`} class="group block">
+                        <span class="block font-medium text-gray-900 group-hover:text-payflo-purple transition-colors duration-200">
+                          {other.title}
+                        </span>
+                        <span class="block text-sm text-gray-600 mt-1">{other.description}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

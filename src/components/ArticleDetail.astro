@@ -1,0 +1,133 @@
+---
+import type { Article } from '../data/content-types';
+
+interface Props {
+  article: Article;
+  /** Where the breadcrumb's parent link points, e.g. "/tutorials". */
+  indexPath: string;
+  indexLabel: string;
+  related: Article[];
+}
+
+const { article, indexPath, indexLabel, related } = Astro.props;
+
+const slugify = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+// Resolve every section's anchor once so the heading and the table of
+// contents cannot drift apart.
+const sections = article.sections.map((section) => ({
+  ...section,
+  anchor: section.id ?? slugify(section.heading),
+}));
+---
+
+<main>
+  <!-- Hero -->
+  <section class="pt-28 pb-12 md:pt-32 md:pb-16 bg-gradient-to-b from-purple-50 to-white">
+    <div class="container-custom">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+          <li><a href="/" class="hover:text-payflo-purple">Home</a></li>
+          <li aria-hidden="true">/</li>
+          <li><a href={indexPath} class="hover:text-payflo-purple">{indexLabel}</a></li>
+          <li aria-hidden="true">/</li>
+          <li class="text-gray-900 font-medium" aria-current="page">{article.title}</li>
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <span class="inline-block bg-purple-100 text-payflo-purple px-4 py-1.5 rounded-full text-sm font-medium">
+          {article.category}
+        </span>
+        <h1 class="mt-4 text-4xl md:text-5xl font-bold leading-tight">
+          {article.title}
+        </h1>
+        <p class="mt-6 text-xl text-gray-600">{article.description}</p>
+        <p class="mt-4 text-sm text-gray-500">{article.readingTime} read</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Body -->
+  <section class="pb-16 md:pb-24">
+    <div class="container-custom">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <article class="lg:col-span-2 space-y-12">
+          {sections.map((section) => (
+            <div id={section.anchor} class="scroll-mt-28">
+              <h2 class="text-2xl md:text-3xl font-bold mb-4">{section.heading}</h2>
+
+              {section.body?.map((paragraph) => (
+                <p class="text-gray-600 leading-relaxed mb-4">{paragraph}</p>
+              ))}
+
+              {section.list && (
+                <ul class="space-y-3 mt-4">
+                  {section.list.map((item) => (
+                    <li class="flex items-start gap-3 text-gray-600">
+                      <svg class="w-5 h-5 text-payflo-purple shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {section.code && (
+                <pre class="mt-4 bg-gray-900 text-gray-100 rounded-lg p-5 overflow-x-auto text-sm"><code>{section.code.source}</code></pre>
+              )}
+            </div>
+          ))}
+        </article>
+
+        <!-- Sidebar -->
+        <aside class="lg:col-span-1">
+          <div class="sticky top-28 space-y-8">
+            <nav class="feature-card" aria-label="On this page">
+              <h2 class="text-lg font-semibold mb-4">On this page</h2>
+              <ul class="space-y-2">
+                {sections.map((section) => (
+                  <li>
+                    <a href={`#${section.anchor}`} class="text-gray-600 hover:text-payflo-purple text-sm">
+                      {section.heading}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {related.length > 0 && (
+              <div class="feature-card">
+                <h2 class="text-lg font-semibold mb-4">Related</h2>
+                <ul class="space-y-4">
+                  {related.map((item) => (
+                    <li>
+                      <a href={`${indexPath}/${item.slug}`} class="group block">
+                        <span class="block font-medium text-gray-900 group-hover:text-payflo-purple transition-colors duration-200">
+                          {item.title}
+                        </span>
+                        <span class="block text-sm text-gray-600 mt-1">{item.description}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div class="feature-card bg-gradient-to-br from-payflo-purple to-payflo-blue text-white">
+              <h2 class="text-lg font-semibold mb-2">Need a hand?</h2>
+              <p class="text-white/90 text-sm mb-4">
+                Our team can walk you through an implementation end to end.
+              </p>
+              <a href="/contact" class="btn bg-white text-payflo-purple hover:bg-gray-50 w-full text-center">
+                Talk to us
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>

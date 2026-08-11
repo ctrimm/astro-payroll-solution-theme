@@ -1,0 +1,28 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ArticleDetail from '../../components/ArticleDetail.astro';
+import documentation from '../../data/documentation';
+
+export async function getStaticPaths() {
+  return documentation.map((doc) => ({
+    params: { slug: doc.slug },
+    props: {
+      doc,
+      related: documentation
+        .filter((d) => d.slug !== doc.slug && d.category === doc.category)
+        .slice(0, 3),
+    },
+  }));
+}
+
+const { doc, related } = Astro.props;
+---
+
+<Layout title={`${doc.title} | Payflo Documentation`} description={doc.description}>
+  <ArticleDetail
+    article={doc}
+    indexPath="/documentation"
+    indexLabel="Documentation"
+    related={related}
+  />
+</Layout>
