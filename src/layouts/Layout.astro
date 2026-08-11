@@ -1,8 +1,8 @@
 ---
 import { ViewTransitions } from 'astro:transitions';
-import { getImage } from 'astro:assets';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import faviconSrc from '../assets/logo.svg';
 import '../styles/global.css';
 
 interface Props {
@@ -14,9 +14,6 @@ const {
   title, 
   description = "Payflo makes it fast and easy for SaaS platforms to build and embed payroll using our infrastructure, APIs and UI components."
 } = Astro.props;
-
-// Preload critical assets
-const faviconImg = await getImage({src: '/favicon.png', width: 32, height: 32});
 ---
 
 <!doctype html>
@@ -25,7 +22,7 @@ const faviconImg = await getImage({src: '/favicon.png', width: 32, height: 32});
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href={faviconImg.src} />
+    <link rel="icon" type="image/svg+xml" href={faviconSrc.src} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <ViewTransitions />
